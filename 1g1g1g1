@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ultimate Countdown to December 19, 2025</title>
+<style>
+:root{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;}
+body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px;background:#f3f4f6}
+.panel{background:white;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.08);padding:18px;max-width:720px;width:100%;position:relative;}
+h1{font-size:20px;margin:0 0 6px}
+p.sub{margin:0 0 16px;color:#555;text-align:center}
+.countdown{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.tile{flex:1 1 120px;background:#0f172a;color:white;padding:12px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:110px;transition:box-shadow 0.5s;}
+.tile.glow{box-shadow:0 0 20px 5px #facc15,0 0 30px 10px #fbbf24;}
+.num{font-size:22px;font-weight:700}
+.lbl{font-size:12px;opacity:.9;margin-top:6px}
+.progress-container{width:100%;background:#ddd;border-radius:12px;margin-top:16px}
+.progress-bar{height:16px;background:#2563eb;border-radius:12px;width:0%;transition:width 0.5s}
+.progress-text{margin-top:6px;font-weight:600;text-align:center}
+.calendar{margin-top:16px}
+.month-head{display:flex;align-items:center;justify-content:space-between}
+.month-title{font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px}
+.day-cell{padding:10px;border-radius:8px;color:white;min-height:56px;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start}
+.day-label{font-size:12px;font-weight:600}
+.weekday{background:#2563eb}
+.weekend{background:#dc2626}
+.target{outline:3px solid gold}
+.today{box-shadow:inset 0 0 0 3px rgba(0,0,0,.06)}
+.legend{display:flex;gap:8px;margin-top:10px;align-items:center}
+.legend .sw{width:14px;height:14px;border-radius:3px;display:inline-block}
+.message-box{margin-top:12px;padding:10px;background:#fde68a;border-radius:10px;font-weight:600;text-align:center;display:none}
+footer{margin-top:12px;color:#444;font-size:13px;text-align:center}
+@media (max-width:640px){.tile{flex:1 1 45%}}
+</style>
+</head>
+<body>
+<div class="panel" id="app">
+<h1>Ultimate Countdown to December 19, 2025</h1>
+<p class="sub">Countdown, progress bar, calendar, Friday prayers & weekend jokes — works anywhere!</p>
+<div class="countdown" id="countdown">
+<div class="tile" id="tile-months"><div class="num" id="months">--</div><div class="lbl">Months</div></div>
+<div class="tile" id="tile-weeks"><div class="num" id="weeks">--</div><div class="lbl">Weeks</div></div>
+<div class="tile" id="tile-days"><div class="num" id="days">--</div><div class="lbl">Days</div></div>
+<div class="tile" id="tile-hours"><div class="num" id="hours">--</div><div class="lbl">Hours</div></div>
+<div class="tile" id="tile-minutes"><div class="num" id="minutes">--</div><div class="lbl">Minutes</div></div>
+<div class="tile" id="tile-seconds"><div class="num" id="seconds">--</div><div class="lbl">Seconds</div></div>
+</div>
+<div class="progress-container">
+<div class="progress-bar" id="progress-bar"></div>
+<div class="progress-text" id="progress-text">--%</div>
+</div>
+<div class="calendar" id="calendar">
+<div class="month-head">
+<div class="month-title">December 2025</div>
+<div class="legend"><span class="sw weekday"></span><small>Weekday (blue)</small>&nbsp;&nbsp;<span class="sw weekend"></span><small>Weekend (red)</small></div>
+</div>
+<div class="grid" id="daysGrid"></div>
+</div>
+<div class="message-box" id="message-box"></div>
+<footer id="note"></footer>
+</div>
+<script>
+(function(){
+const target = new Date(2025,11,19,0,0,0);
+const start = new Date();
+const el = {
+ months: document.getElementById('months'),
+ weeks: document.getElementById('weeks'),
+ days: document.getElementById('days'),
+ hours: document.getElementById('hours'),
+ minutes: document.getElementById('minutes'),
+ seconds: document.getElementById('seconds'),
+ daysGrid: document.getElementById('daysGrid'),
+ note: document.getElementById('note'),
+ progressBar: document.getElementById('progress-bar'),
+ progressText: document.getElementById('progress-text'),
+ messageBox: document.getElementById('message-box'),
+ tiles: ['tile-months','tile-weeks','tile-days','tile-hours','tile-minutes','tile-seconds'].map(id=>document.getElementById(id))
+};
+const weekdayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+weekdayNames.forEach(name=>{
+ const h=document.createElement('div'); h.textContent=name; h.style.fontWeight='700'; h.style.opacity='.8'; el.daysGrid.appendChild(h);
+});
+function buildCalendar(){
+ while(el.daysGrid.children.length>7) el.daysGrid.removeChild(el.daysGrid.lastChild);
+ const year=2025, month=11;
+ const first=new Date(year,month,1), last=new Date(year,month+1,0);
+ const startWeekday=first.getDay(), totalDays=last.getDate();
+ const today=new Date();
+ const todayYMD=`${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+ for(let i=0;i<startWeekday;i++){el.daysGrid.appendChild(document.createElement('div'));}
+ for(let d=1;d<=totalDays;d++){
+  const cell=document.createElement('div');
+  const cur=new Date(year,month,d);
+  const weekday=cur.getDay();
+  cell.className='day-cell '+(weekday===0||weekday===6?'weekend':'weekday');
+  if(d===19) cell.classList.add('target');
+  if(`${cur.getFullYear()}-${cur.getMonth()}-${cur.getDate()}`===todayYMD) cell.classList.add('today');
+  const label=document.createElement('div'); label.className='day-label'; label.textContent=d; cell.appendChild(label);
+  if(d===19){const note=document.createElement('small'); note.textContent='Target'; note.style.marginTop='6px'; note.style.opacity='.95'; cell.appendChild(note);}
+  el.daysGrid.appendChild(cell);
+ }
+}
+function getBreakdown(now,to){
+ if(now>=to) return {months:0,weeks:0,days:0,hours:0,minutes:0,seconds:0,done:true};
+ let months=(to.getFullYear()-now.getFullYear())*12+(to.getMonth()-now.getMonth());
+ const tmp=new Date(now.getTime()); tmp.setMonth(tmp.getMonth()+months);
+ if(tmp>to){months--; tmp.setMonth(tmp.getMonth()-1);}
+ let remainder=to-tmp;
+ const weekMs=7*24*60*60*1000, dayMs=24*60*60*1000, hourMs=60*60*1000, minMs=60*1000;
+ const weeks=Math.floor(remainder/weekMs); remainder-=weeks*weekMs;
+ const days=Math.floor(remainder/dayMs); remainder-=days*dayMs;
+ const hours=Math.floor(remainder/hourMs); remainder-=hours*hourMs;
+ const minutes=Math.floor(remainder/minMs); remainder-=minutes*minMs;
+ const seconds=Math.floor(remainder/1000);
+ return {months,weeks,days,hours,minutes,seconds,done:false};
+}
+function pad(n){return String(n).padStart(2,'0');}
+function updateProgress(now,to){
+ const total=to-start; const elapsed=now-start;
+ const percent=Math.min(100,(elapsed/total*100).toFixed(2));
+ el.progressBar.style.width=percent+'%'; el.progressText.textContent=percent+'%';
+}
+function updateMessage(now){
+ const day=now.getDay();
+ if(day===5){el.messageBox.style.display='block'; el.messageBox.textContent='Friday prayer: 🙏 Stay calm and grateful!';}
+ else if(day===6||day===0){el.messageBox.style.display='block'; el.messageBox.textContent='Weekend response: 😂 Praying for a break!';}
+ else{el.messageBox.style.display='none';}
+}
+function tick(){
+ const now=new Date();
+ const b=getBreakdown(now,target);
+ el.months.textContent=b.months;
+ el.weeks.textContent=b.weeks;
+ el.days.textContent=b.days;
+ el.hours.textContent=pad(b.hours);
+ el.minutes.textContent=pad(b.minutes);
+ el.seconds.textContent=pad(b.seconds);
+ el.tiles.forEach(t=>t.classList.toggle('glow'));
+ updateProgress(now,target);
+ updateMessage(now);
+ if(b.done){el.note.textContent='🎉 The target date has arrived!'; clearInterval(interval);}
+ else{el.note.textContent='Current time: '+now.toLocaleString()+' — Target: '+target.toLocaleString();}
+}
+buildCalendar();
+const interval=setInterval(tick,1000);
+tick();
+})();
+</script>
+</body>
+</html>
